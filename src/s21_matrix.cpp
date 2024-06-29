@@ -1,3 +1,5 @@
+#include <iostream>
+
 class S21Matrix {
     private:
         // Attributes
@@ -7,35 +9,40 @@ class S21Matrix {
     public:
         S21Matrix();              // Default constructor
         S21Matrix(int rows, int cols);
-        S21Matrix(const S21Matrix& other);
-        S21Matrix(S21Matrix&& other);
+        // S21Matrix(const S21Matrix& other);
+        // S21Matrix(S21Matrix&& other);
         ~S21Matrix();             // Destructor
 
         bool EqMatrix(const S21Matrix& other);
         void SumMatrix(const S21Matrix& other);
-        void SubMatrix(const S21Matrix& other);
-        void MulNumber(const double num);
-        void MulMatrix(const S21Matrix& other);
-        S21Matrix Transpose();
-        S21Matrix CalcComplements();
-        double Determinant();
-        S21Matrix InverseMatrix();
+        // void SubMatrix(const S21Matrix& other);
+        // void MulNumber(const double num);
+        // void MulMatrix(const S21Matrix& other);
+        // S21Matrix Transpose();
+        // S21Matrix CalcComplements();
+        // double Determinant();
+        // S21Matrix InverseMatrix();
 
-        int getRows() const;
-        int getCols() const;
+        int GetRows() const;
+        int GetCols() const;
 };
 
-int S21Matrix::getRows() const{
+int S21Matrix::GetRows() const{
     return this->rows_;
 }
 
-int S21Matrix::getCols() {
+int S21Matrix::GetCols() const{
     return this->rows_;
 }
 
-void SumMatrix(const S21Matrix& other) {
-    for (int i = 0; i < other.getRows(); i++) {
-        for (int j = 0; j < other.getCols(); j++) {
+S21Matrix::S21Matrix(int rows, int cols) {
+    this->rows_ = rows;
+    this->cols_ = cols;
+}
+
+void S21Matrix::SumMatrix(const S21Matrix& other) {
+    for (int i = 0; i < other.GetRows(); i++) {
+        for (int j = 0; j < other.GetCols(); j++) {
             this->matrix_[i][j] += other.matrix_[i][j];
         }
     }
@@ -49,6 +56,12 @@ bool S21Matrix::EqMatrix(const S21Matrix& other) {
         }
     }
     return result;
+}
+
+int main() {
+    S21Matrix matr(2, 2);
+    printf("%d", matr.GetCols());
+    printf("ok");
 }
 
 // +	Addition of two matrices.	Different matrix dimensions.
