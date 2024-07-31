@@ -3,38 +3,71 @@
 
 #include <math.h>
 #include <stdio.h>
+#include <iostream>
 #include <stdlib.h>
 #include <string.h>
-typedef struct matrix_struct {
-  double **matrix;
-  int rows;
-  int columns;
-} matrix_t;
-
-int s21_create_matrix(int rows, int columns, matrix_t *result);
-
-void s21_remove_matrix(matrix_t *A);
-
-#define SUCCESS 1
-#define FAILURE 0
-int s21_eq_matrix(matrix_t *A, matrix_t *B);
 
 #define OK 0
 #define ERROR_MATRIX 1
+#define ERROR_MATRIX_STR "ERROR MATRIX"
 #define ERROR_MEMORY 1
+#define ERROR_MEMORY_STR "ERROR MEMORY"
 #define ERROR_CALC 2
-int s21_sum_matrix(matrix_t *A, matrix_t *B, matrix_t *result);
-int s21_sub_matrix(matrix_t *A, matrix_t *B, matrix_t *result);
+#define ERROR_CALC_STR "ERROR CALC"
 
-int s21_mult_number(matrix_t *A, double number, matrix_t *result);
-int s21_mult_matrix(matrix_t *A, matrix_t *B, matrix_t *result);
+class S21Matrix {
+    private:
+        int rows_, cols_;         // Rows and columns
+        double **matrix_;         // Pointer to the memory where the matrix is allocated
 
-int s21_transpose(matrix_t *A, matrix_t *result);
+    public:
+        S21Matrix();              // Default constructor
+        S21Matrix(int rows, int cols);
+        S21Matrix(const S21Matrix& other);
+        ~S21Matrix();             // Destructor
 
-int s21_calc_complements(matrix_t *A, matrix_t *result);
+        bool IsValid();
 
-int s21_determinant(matrix_t *A, double *result);
+        bool EqMatrix(const S21Matrix& other);
+        void SumMatrix(const S21Matrix& other);
+        void SubMatrix(const S21Matrix& other);
+        void MulNumber(const double num);
+        void MulMatrix(const S21Matrix& other);
+        S21Matrix Transpose();
+        S21Matrix CalcComplements();
+        double Determinant();
+        S21Matrix InverseMatrix();
 
-int s21_inverse_matrix(matrix_t *A, matrix_t *result);
+        int GetRows() const;
+        int GetCols() const;
+        void SetRows(int rows);
+        void SetCols(int cols);
 
+        double GetNumber(int row, int col);
+        void SetNumber(int row, int col, double number);
+
+        void PrintMatrix();
+        void MinorMatrix(S21Matrix& A_minor, int scale, int row,
+                       int column);
+
+
+        // some operators overloads
+        S21Matrix& operator=(const S21Matrix& o);                   // assignment operator overload
+        int& operator()(int row, int col);                          // index operator overload
+        int& operator()(int row, int col) const;
+        S21Matrix& operator+=(const S21Matrix& o);                            
+        S21Matrix operator+(const S21Matrix& o);
+        S21Matrix& operator-=(const S21Matrix& o);
+        S21Matrix operator-(const S21Matrix& o);
+        S21Matrix& operator*=(const S21Matrix& o);                            
+        S21Matrix operator*(const S21Matrix& o);
+
+        friend S21Matrix operator*(double, S21Matrix&);
+        friend S21Matrix operator*(S21Matrix&, double);
+        friend S21Matrix& operator*=(double, S21Matrix&);
+        friend S21Matrix& operator*=(S21Matrix&, double);
+};
+
+// S21Matrix operator*=(double, S21Matrix&);
+// S21Matrix operator*=(S21Matrix&, double);
 #endif  // S21_MATRIX_H
