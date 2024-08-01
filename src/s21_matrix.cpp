@@ -312,32 +312,3 @@ S21Matrix S21Matrix::operator*(const S21Matrix& o) {
   res.MulMatrix(o);
   return res;
 }
-
-// int main() {
-//   S21Matrix matr(2, 2);
-//   S21Matrix matr2(2, 2);
-//   matr.SetNumber(1, 0, 10);
-//   matr.PrintMatrix();
-//   matr2.SetNumber(1, 1, 10);
-//   matr2.PrintMatrix();
-//   printf("equal %d\n", matr.EqMatrix(matr2));
-//   matr.SumMatrix(matr2);
-//   matr.PrintMatrix();
-//   matr.SubMatrix(matr2);
-//   matr.PrintMatrix();
-//   matr2.SetNumber(0, 1, 10);
-//   matr.SumMatrix(matr2);
-//   S21Matrix result = matr.CalcComplements();
-//   result.PrintMatrix();
-//   printf("base matrix \n");
-//   matr.PrintMatrix();
-//   S21Matrix result2 = matr.InverseMatrix();
-//   printf("inverse matrix \n");
-//   result2.PrintMatrix();
-//   matr.SetNumber(0, 1, 10);
-//   double determ = matr.Determinant();
-//   printf("determinant %f\n", determ);
-//   matr += matr2;
-//   matr.PrintMatrix();
-//   printf("index %f\n", matr(1, 1));
-// }

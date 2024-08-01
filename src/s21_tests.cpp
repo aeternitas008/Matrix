@@ -13,9 +13,11 @@ TEST(S21MatrixTest, FillMatrix) {
   EXPECT_DOUBLE_EQ(mat.GetNumber(1, 0), 3.0);
   EXPECT_DOUBLE_EQ(mat.GetNumber(1, 1), 4.0);
   EXPECT_DOUBLE_EQ(mat(1, 0), 3.0);
+  EXPECT_THROW({ mat(2, 2); }, std::out_of_range);
 
   const S21Matrix mat3(mat);
   EXPECT_DOUBLE_EQ(mat3(1, 0), 3.0);
+  EXPECT_THROW({ mat3(2, 2); }, std::out_of_range);
 }
 
 // Тест инициализации матрицы
@@ -212,6 +214,8 @@ TEST(S21MatrixTest, SubMatrix2) {
   EXPECT_DOUBLE_EQ(res.GetNumber(0, 1), 2.0);
   EXPECT_DOUBLE_EQ(res.GetNumber(1, 0), 3.0);
   EXPECT_DOUBLE_EQ(res.GetNumber(1, 1), 4.0);
+
+  res = res;
 }
 
 TEST(S21MatrixTest, SubMatrix3) {
@@ -423,6 +427,23 @@ TEST(S21MatrixTest, Determinant) {
   double det = mat.Determinant();
 
   EXPECT_DOUBLE_EQ(det, 1.0);
+}
+
+
+TEST(S21MatrixTest, Determinant2) {
+  S21Matrix mat(2, 3);
+  double data[] = {1.0, 2.0, 3.0, 0.0, 1.0, 4.0};
+  mat.FillMatrix(data, 2, 3);
+
+  EXPECT_THROW(mat.Determinant(), std::out_of_range);
+}
+
+TEST(S21MatrixTest, Determinant3) {
+  S21Matrix mat(1, 1);
+  double data[] = {1.0};
+  mat.FillMatrix(data, 1, 1);
+
+  EXPECT_DOUBLE_EQ(mat.Determinant(), 1);
 }
 
 // Тест InverseMatrix
