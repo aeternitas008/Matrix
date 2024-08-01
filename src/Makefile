@@ -42,10 +42,10 @@ gcov_report: s21_matrix.a_gcov test
 	rm *.o s21_tests
 	
 cl_fri:
-	@clang-format -i -style=google *.h *.c
+	@clang-format -i -style=google *.h *.cpp
 
 cl_fr:
-	clang-format -n -style=google *.h *.c
+	clang-format -n -style=google *.h *.cpp
 
 valgrind_check: test
 	@CK_FORK=no valgrind --vgdb=no --leak-check=full \
@@ -63,3 +63,8 @@ git:
 tes:
 	g++ s21_matrix.cpp
 	./a.out
+
+
+tes2:
+	g++ s21_tests.cpp -o test -lgtest -lgmock -pthread
+	./test
