@@ -1,9 +1,10 @@
 OS = $(shell uname -o)
-FLAGS = -Wall -Wextra -Werror -std=c11
+FLAGS = -Wall -Wextra -Werror -std=c++11
 FLAGS_FOR_GCOV = -fprofile-arcs -ftest-coverage
-FILES_C = s21_matrix.c
+FILES_CPP = s21_matrix.cpp
+GTEST_LIBS = -lgtest -lgmock -pthread
 
-TESTS = s21_tests.c
+TESTS = s21_tests.cpp
 
 ifeq ($(OS), GNU/Linux)
 	TEST_FLAGS = -lcheck -lm -lpthread -lrt -lsubunit
@@ -20,15 +21,15 @@ rebuild:
 	@make clean && make gcov_report
 
 test: s21_matrix.a
-	gcc $(FLAGS) $(TESTS) --coverage s21_matrix.a $(TEST_FLAGS) -o s21_tests
+	g++ $(FLAGS) $(TESTS) -I$(GTEST_DIR)/include --coverage s21_matrix.a $(TEST_FLAGS) -o s21_tests
 	./s21_tests
 
-s21_matrix.a: $(FILES_C:.c=.o)
+s21_matrix.a: $(FILES_CPP:.cpp=.o)
 	ar rc $@ $^
 	ranlib $@
 
 s21_matrix.a_gcov:
-	@gcc $(FLAGS) $(FLAGS_FOR_GCOV) -c $(FILES_C)
+	@g++ $(FLAGS) $(FLAGS_FOR_GCOV) -c $(FILES_CPP)
 	@ar rc s21_matrix.a *.o
 	@ranlib s21_matrix.a
 

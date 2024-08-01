@@ -1,5 +1,6 @@
-#include "s21_matrix.h"
+#include "s21_matrix.hpp"
 
+// helper functions
 void S21Matrix::PrintMatrix() {
   for (int i = 0; i < rows_; i++) {
     for (int j = 0; j < cols_; j++) {
@@ -9,13 +10,52 @@ void S21Matrix::PrintMatrix() {
   }
 }
 
+void S21Matrix::FillMatrix(const double* array, int rows, int cols) {
+  if (rows != rows_ || cols != cols_) {
+    throw std::out_of_range("Array size does not match matrix dimensions");
+  }
+  for (int i = 0; i < rows; i++) {
+    for (int j = 0; j < cols; j++) {
+      matrix_[i][j] = array[i * cols + j];
+    }
+  }
+}
+
+bool S21Matrix::IsSquareMatrix() const {
+  return (rows_ == cols_);
+}
+
+bool S21Matrix::IsCorrectMatrix() const {
+  return (rows_ > 0 && cols_ > 0 && matrix_ != nullptr);
+}
+
+bool S21Matrix::IsEqualSize(const S21Matrix& o) const{
+  return (rows_ == o.rows_ && cols_ == o.cols_);
+}
+
 int S21Matrix::GetRows() const { return rows_; }
 
-int S21Matrix::GetCols() const { return rows_; }
+int S21Matrix::GetCols() const { return cols_; }
 
-void S21Matrix::SetRows(int rows) { rows_ = rows; }
+void S21Matrix::SetRows(int rows) { 
+  if (rows <= 0)
+        throw std::length_error("Array size can't be zero");
+  S21Matrix tmp(rows, cols_);
+  for (int i = 0; i < (rows_ < rows ? rows_ : rows); ++i)
+      for (int j = 0; j < cols_; ++j)
+          tmp.matrix_[i][j] = (*this).matrix_[i][j];
+  *this = std::move(tmp);
+  }
 
-void S21Matrix::SetCols(int cols) { cols_ = cols; }
+void S21Matrix::SetCols(int cols) {
+  if (cols <= 0)
+        throw std::length_error("Array size can't be zero");
+  S21Matrix tmp(rows_, cols);
+  for (int i = 0; i < rows_; ++i)
+      for (int j = 0; j < (cols_ < cols ? cols_ : cols); ++j)
+          tmp.matrix_[i][j] = (*this).matrix_[i][j];
+  *this = std::move(tmp);
+  }
 
 double S21Matrix::GetNumber(int row, int col) { return matrix_[row][col]; }
 
@@ -33,10 +73,12 @@ S21Matrix::~S21Matrix() {
 }
 
 S21Matrix::S21Matrix(int rows, int cols) : rows_(rows), cols_(cols) {
+  if (rows_ <= 0 || cols_ <= 0) {
+    throw std::length_error("Array size can't be zero");
+  }
   matrix_ = new double*[rows_];
   for (int row = 0; row < rows; ++row) {
     matrix_[row] = new double[cols_];
-    ;
   }
 }
 
@@ -50,9 +92,27 @@ S21Matrix::S21Matrix(const S21Matrix& other) {
   }
 }
 
-//объединить однотипные функции с перебором всех элементов и проверять
-//корректность входных параметров
+S21Matrix::S21Matrix(S21Matrix&& other) : rows_(0), cols_(0), matrix_(nullptr) {
+  *this = std::move(other);
+}
+
+bool S21Matrix::EqMatrix(const S21Matrix& other) {
+  if (!IsCorrectMatrix() || !other.IsCorrectMatrix() || !IsEqualSize(other)) {
+    throw std::out_of_range("Incorrect matrix or different size matrix");
+  }
+  bool result = true;
+  for (int i = 0; i < other.rows_ && result; i++) {
+    for (int j = 0; j < other.cols_ && result; j++) {
+      if (fabs(other.matrix_[i][j] - matrix_[i][j]) >= 1e-6) result = false;
+    }
+  }
+  return result;
+}
+
 void S21Matrix::SumMatrix(const S21Matrix& other) {
+  if (!IsCorrectMatrix() || !other.IsCorrectMatrix() || !IsEqualSize(other)) {
+    throw std::out_of_range("Incorrect matrix or different size matrix");
+  }
   for (int i = 0; i < rows_; i++) {
     for (int j = 0; j < cols_; j++) {
       this->matrix_[i][j] += other.matrix_[i][j];
@@ -61,6 +121,9 @@ void S21Matrix::SumMatrix(const S21Matrix& other) {
 }
 
 void S21Matrix::SubMatrix(const S21Matrix& other) {
+  if (!IsCorrectMatrix() || !other.IsCorrectMatrix() || !IsEqualSize(other)) {
+    throw std::out_of_range("Incorrect matrix or different size matrix");
+  }
   for (int i = 0; i < rows_; i++) {
     for (int j = 0; j < cols_; j++) {
       this->matrix_[i][j] -= other.matrix_[i][j];
@@ -68,14 +131,10 @@ void S21Matrix::SubMatrix(const S21Matrix& other) {
   }
 }
 
-bool S21Matrix::IsValid() {
-  if (rows_ >= 0 && cols_ >= 0)
-    return true;
-  else
-    return false;
-}
-
 void S21Matrix::MulNumber(const double number) {
+  if (!IsCorrectMatrix()) {
+    throw std::out_of_range("Incorrect matrix");
+  }
   for (int i = 0; i < rows_; i++) {
     for (int j = 0; j < cols_; j++) {
       this->matrix_[i][j] *= number;
@@ -84,15 +143,25 @@ void S21Matrix::MulNumber(const double number) {
 }
 
 void S21Matrix::MulMatrix(const S21Matrix& other) {
-  for (int i = 0; i < rows_; i++) {
-    for (int j = 0; j < cols_; j++) {
-      matrix_[i][j] *= other.matrix_[i][j];
+  if (!IsCorrectMatrix() || !other.IsCorrectMatrix() || (cols_ != other.rows_)) {
+    throw std::out_of_range("Incorrect matrix or incorrect size matrix");
+  }
+  S21Matrix res(rows_, other.cols_);
+  for (int row = 0; row < rows_; row++) {
+    for (int col = 0; col < other.cols_; col++) {
+      for (int k = 0; k < cols_; k++) {
+        res.matrix_[row][col] += matrix_[row][k] * other.matrix_[k][col];
+      }
     }
   }
+  *this = res;
 }
 
 S21Matrix S21Matrix::Transpose() {
-  S21Matrix result(rows_, cols_);
+  if (!IsCorrectMatrix()) {
+    throw std::out_of_range("Incorrect matrix");
+  }
+  S21Matrix result(cols_, rows_);
   for (int i = 0; i < rows_; i++) {
     for (int j = 0; j < cols_; j++) {
       result.matrix_[i][j] = matrix_[j][i];
@@ -103,52 +172,46 @@ S21Matrix S21Matrix::Transpose() {
 
 void S21Matrix::MinorMatrix(S21Matrix& A_minor, int scale, int row,
                             int column) {
-  int skip_i, skip_j = 0;
+  int minor_row = 0, minor_col = 0; // Счетчики для индексов A_minor
   for (int i = 0; i < scale; i++) {
-    skip_j = 0;
     if (i == row) {
-      skip_i = 1;
-      continue;
+      continue; // Пропускаем строку, которую нужно удалить
     }
+    minor_col = 0;
     for (int j = 0; j < scale; j++) {
       if (j == column) {
-        skip_j = 1;
-        continue;
+        continue; // Пропускаем столбец, который нужно удалить
       }
-      (A_minor).matrix_[i - skip_i][j - skip_j] = matrix_[i][j];
+      A_minor.matrix_[minor_row][minor_col] = matrix_[i][j]; // Заполняем A_minor
+      minor_col++;
     }
+    minor_row++;
   }
 }
 
+
 S21Matrix S21Matrix::CalcComplements() {
-  int code = OK;
+  if (!IsCorrectMatrix() || !IsSquareMatrix()) {
+    throw std::out_of_range("Incorrect matrix or not square matrix");
+  }
   S21Matrix result(rows_, cols_);
-  if (IsValid()) {
-    perror(ERROR_MATRIX_STR);
-  } else if (rows_ != cols_) {
-    perror(ERROR_CALC_STR);
-  } else {
-    int scale = rows_;
-    S21Matrix A_minor(scale - 1, scale - 1);
-    for (int row = 0; row < scale && code != ERROR_CALC; row++) {
-      for (int column = 0; column < scale && code != ERROR_CALC; column++) {
-        MinorMatrix(A_minor, scale, row, column);
-        double coefficient = ((column + row) % 2 == 0) ? 1 : -1;
-        double minor = A_minor.Determinant();
-        if (std::isinf(minor) || std::isnan(minor)) {
-          code = ERROR_CALC;
-          result.~S21Matrix();
-        } else {
-          result.matrix_[row][column] = coefficient * minor;
-        }
-      }
+  int scale = rows_;
+  S21Matrix A_minor(scale - 1, scale - 1);
+  for (int row = 0; row < scale; row++) {
+    for (int column = 0; column < scale; column++) {
+      MinorMatrix(A_minor, scale, row, column);
+      double coefficient = ((column + row) % 2 == 0) ? 1 : -1;
+      double minor = A_minor.Determinant();
+      result.matrix_[row][column] = coefficient * minor;
     }
-    A_minor.~S21Matrix();
   }
   return result;
 }
 
 double S21Matrix::Determinant() {
+  if (!IsCorrectMatrix() || !IsSquareMatrix()) {
+    throw std::out_of_range("Incorrect matrix or not square matrix");
+  }
   double result = 0;
   int scale = rows_;
   if (scale == 1) {
@@ -162,54 +225,29 @@ double S21Matrix::Determinant() {
       double coefficient = (col % 2 == 0) ? 1 : -1;
       result += matrix_[0][col] * coefficient * A_minor.Determinant();
     }
-    A_minor.~S21Matrix();
   }
   return result;
 }
 
+//убрал исключение потому что оно в детерминанте !?
 S21Matrix S21Matrix::InverseMatrix() {
-  int code = OK;
+  double determinant = Determinant();
   S21Matrix result;
-  if (this == NULL || IsValid()) {
-    perror(ERROR_MATRIX_STR);
-  } else if (rows_ != cols_) {
-    perror(ERROR_CALC_STR);
+  int scale = rows_;
+  if (determinant == 0 || std::isinf(determinant) ||
+    std::isnan(determinant)) {
+    throw std::out_of_range("Determinant is 0 or is incorrect");
+  } else if (scale == 1) {
+    result.matrix_[0][0] = 1 / matrix_[0][0];
   } else {
-    S21Matrix result(rows_, cols_);
-    int scale = rows_;
-    double determinant = Determinant();
-    if (determinant == 0 || std::isinf(determinant) ||
-        std::isnan(determinant)) {
-      this->~S21Matrix();
-      // throw may be
-      perror(ERROR_CALC_STR);
-    } else if (scale == 1) {
-      result.matrix_[0][0] = 1 / matrix_[0][0];
-    } else {
-      S21Matrix RawMatrix(scale, scale);
-      RawMatrix = CalcComplements();
-      S21Matrix RawMatrix2(scale, scale);
-      if (!code) RawMatrix2 = RawMatrix.Transpose();
-      if (!code) RawMatrix2.MulNumber((1.0 / determinant));
-      result = RawMatrix2;
-      RawMatrix.~S21Matrix();
-      RawMatrix2.~S21Matrix();
-    }
+    S21Matrix RawMatrix = CalcComplements();
+    S21Matrix RawMatrix2 = RawMatrix.Transpose();
+    RawMatrix2.MulNumber((1.0 / determinant));
+    result = RawMatrix2;
   }
   return result;
 }
 
-bool S21Matrix::EqMatrix(const S21Matrix& other) {
-  bool result = true;
-  for (int i = 0; i < other.rows_ && result; i++) {
-    for (int j = 0; j < other.cols_ && result; j++) {
-      if (fabs(other.matrix_[i][j] - matrix_[i][j]) >= 1e-6) result = false;
-    }
-  }
-  return result;
-}
-
-// index operator overload
 double S21Matrix::operator()(int row, int col) {
   if (row >= rows_ || col >= cols_) {
     throw std::out_of_range("Incorrect input, index is out of range");
@@ -225,9 +263,22 @@ double S21Matrix::operator()(int row, int col) const {
 }
 
 S21Matrix& S21Matrix::operator=(const S21Matrix& o) {
-  (*this).~S21Matrix();
-  *this = S21Matrix(o);
-  return (*this);
+  if (this == &o) {
+    return *this;
+  }
+  if (rows_ != o.rows_ || cols_ != o.cols_) {
+    delete[] matrix_;
+    rows_ = o.rows_;
+    cols_ = o.cols_;
+    matrix_ = new double*[rows_];
+    for (int i = 0; i < rows_; ++i) {
+      matrix_[i] = new double[cols_];
+    }
+  }
+  for (int row = 0; row < rows_; ++row) {
+    memcpy(matrix_[row], o.matrix_[row], o.cols_ * sizeof(double));
+  }
+  return *this;
 }
 
 bool S21Matrix::operator==(const S21Matrix& o) { return EqMatrix(o); }
@@ -240,13 +291,11 @@ S21Matrix S21Matrix::operator+(const S21Matrix& o) {
 }
 
 S21Matrix& S21Matrix::operator+=(const S21Matrix& o) {
-  // creating result matrix
   SumMatrix(o);
   return *this;
 }
 
 S21Matrix S21Matrix::operator-(const S21Matrix& o) {
-  // creating result matrix
   S21Matrix res(rows_, cols_);
   res.SubMatrix(*this);
   res.SubMatrix(o);
@@ -286,30 +335,36 @@ S21Matrix& S21Matrix::operator*=(const S21Matrix& o) {
 }
 
 S21Matrix S21Matrix::operator*(const S21Matrix& o) {
-  // creating result matrix
   S21Matrix res(*this);
   res.MulMatrix(o);
   return res;
 }
 
-int main() {
-  S21Matrix matr(2, 2);
-  S21Matrix matr2(2, 2);
-  S21Matrix result(2, 2);
-  matr.SetNumber(1, 0, 10);
-  matr.PrintMatrix();
-  matr2.SetNumber(1, 1, 10);
-  matr2.PrintMatrix();
-  // S21Matrix matr3 = matr.SubMatrix(matr2);
-  matr.SumMatrix(matr2);
-  matr.PrintMatrix();
-  matr.SetNumber(0, 1, 10);
-  double determ = matr.Determinant();
-  printf("ok ");
-  printf("determinant %f\n", determ);
-
-  matr += matr2;
-  matr += matr2;
-  matr.PrintMatrix();
-  printf("index %f\n", matr(1, 1));
-}
+// int main() {
+//   S21Matrix matr(2, 2);
+//   S21Matrix matr2(2, 2);
+//   matr.SetNumber(1, 0, 10);
+//   matr.PrintMatrix();
+//   matr2.SetNumber(1, 1, 10);
+//   matr2.PrintMatrix();
+//   printf("equal %d\n", matr.EqMatrix(matr2));
+//   matr.SumMatrix(matr2);
+//   matr.PrintMatrix();
+//   matr.SubMatrix(matr2);
+//   matr.PrintMatrix();
+//   matr2.SetNumber(0, 1, 10);
+//   matr.SumMatrix(matr2);
+//   S21Matrix result = matr.CalcComplements();
+//   result.PrintMatrix();
+//   printf("base matrix \n");
+//   matr.PrintMatrix();
+//   S21Matrix result2 = matr.InverseMatrix();
+//   printf("inverse matrix \n");
+//   result2.PrintMatrix();
+//   matr.SetNumber(0, 1, 10);
+//   double determ = matr.Determinant();
+//   printf("determinant %f\n", determ);
+//   matr += matr2;
+//   matr.PrintMatrix();
+//   printf("index %f\n", matr(1, 1));
+// }
