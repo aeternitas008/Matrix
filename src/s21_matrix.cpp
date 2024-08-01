@@ -233,14 +233,14 @@ S21Matrix S21Matrix::InverseMatrix() {
 }
 
 double S21Matrix::operator()(int row, int col) {
-  if (row >= rows_ || col >= cols_ || row <=0 || col <= 0) {
+  if (row >= rows_ || col >= cols_ || row <0 || col < 0) {
     throw std::out_of_range("Incorrect input, index is out of range");
   }
   return matrix_[row][col];
 }
 
 double S21Matrix::operator()(int row, int col) const {
-  if (row >= rows_ || col >= cols_ || row <=0 || col <= 0) {
+  if (row >= rows_ || col >= cols_ || row <0 || col < 0) {
     throw std::out_of_range("Incorrect input, index is out of range");
   }
   return matrix_[row][col];

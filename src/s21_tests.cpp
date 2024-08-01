@@ -13,11 +13,9 @@ TEST(S21MatrixTest, FillMatrix) {
   EXPECT_DOUBLE_EQ(mat.GetNumber(1, 0), 3.0);
   EXPECT_DOUBLE_EQ(mat.GetNumber(1, 1), 4.0);
   EXPECT_DOUBLE_EQ(mat(1, 0), 3.0);
-  // EXPECT_THROW( mat(3, 2), std::out_of_range);
 
   const S21Matrix mat3(mat);
   EXPECT_DOUBLE_EQ(mat3(1, 0), 3.0);
-  // EXPECT_THROW(mat3(3, 2), std::out_of_range);
 }
 
 // Тест инициализации матрицы
