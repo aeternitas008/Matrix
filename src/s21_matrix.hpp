@@ -18,7 +18,7 @@ class S21Matrix {
   S21Matrix();  // Default constructor
   S21Matrix(int rows, int cols);
   S21Matrix(const S21Matrix& other);
-  S21Matrix(S21Matrix&& other);
+  S21Matrix(S21Matrix&& other) noexcept;
   ~S21Matrix();  // Destructor
 
   bool EqMatrix(const S21Matrix& other);
@@ -37,15 +37,13 @@ class S21Matrix {
   void SetCols(int cols);
 
   double GetNumber(int row, int col);
-  void SetNumber(int row, int col, double number);
   void FillMatrix(const double* array, int rows, int cols);
-  void PrintMatrix();
   void MinorMatrix(S21Matrix& A_minor, int scale, int row, int column);
 
   // some operators overloads
   S21Matrix& operator=(const S21Matrix& o);  // assignment operator overload
-  bool operator==(const S21Matrix& o); 
-  double operator()(int row, int col);       // index operator overload
+  bool operator==(const S21Matrix& o);
+  double operator()(int row, int col);  // index operator overload
   double operator()(int row, int col) const;
   S21Matrix& operator+=(const S21Matrix& o);
   S21Matrix operator+(const S21Matrix& o);
@@ -54,9 +52,8 @@ class S21Matrix {
   S21Matrix& operator*=(const S21Matrix& o);
   S21Matrix operator*(const S21Matrix& o);
 
-  friend S21Matrix operator*(double, S21Matrix&);
-  friend S21Matrix operator*(S21Matrix&, double);
-  friend S21Matrix& operator*=(double, S21Matrix&);
+  friend S21Matrix operator*(double, const S21Matrix&);
+  friend S21Matrix operator*(const S21Matrix&, double);
   friend S21Matrix& operator*=(S21Matrix&, double);
 
   bool IsSquareMatrix() const;
