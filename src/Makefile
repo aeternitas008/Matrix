@@ -60,12 +60,3 @@ git:
 	git add *.c *.h Makefile
 	git commit -m "new"
 	git push origin develop
-
-tes:
-	g++ s21_matrix.cpp
-	./a.out
-
-
-tes2:
-	g++ s21_tests.cpp -o test -lgtest -lgmock -pthread
-	./test

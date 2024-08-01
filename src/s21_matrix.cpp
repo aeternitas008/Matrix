@@ -21,15 +21,13 @@ void S21Matrix::FillMatrix(const double* array, int rows, int cols) {
   }
 }
 
-bool S21Matrix::IsSquareMatrix() const {
-  return (rows_ == cols_);
-}
+bool S21Matrix::IsSquareMatrix() const { return (rows_ == cols_); }
 
 bool S21Matrix::IsCorrectMatrix() const {
   return (rows_ > 0 && cols_ > 0 && matrix_ != nullptr);
 }
 
-bool S21Matrix::IsEqualSize(const S21Matrix& o) const{
+bool S21Matrix::IsEqualSize(const S21Matrix& o) const {
   return (rows_ == o.rows_ && cols_ == o.cols_);
 }
 
@@ -37,25 +35,22 @@ int S21Matrix::GetRows() const { return rows_; }
 
 int S21Matrix::GetCols() const { return cols_; }
 
-void S21Matrix::SetRows(int rows) { 
-  if (rows <= 0)
-        throw std::length_error("Array size can't be zero");
+void S21Matrix::SetRows(int rows) {
+  if (rows <= 0) throw std::length_error("Array size can't be zero");
   S21Matrix tmp(rows, cols_);
   for (int i = 0; i < (rows_ < rows ? rows_ : rows); ++i)
-      for (int j = 0; j < cols_; ++j)
-          tmp.matrix_[i][j] = (*this).matrix_[i][j];
+    for (int j = 0; j < cols_; ++j) tmp.matrix_[i][j] = (*this).matrix_[i][j];
   *this = std::move(tmp);
-  }
+}
 
 void S21Matrix::SetCols(int cols) {
-  if (cols <= 0)
-        throw std::length_error("Array size can't be zero");
+  if (cols <= 0) throw std::length_error("Array size can't be zero");
   S21Matrix tmp(rows_, cols);
   for (int i = 0; i < rows_; ++i)
-      for (int j = 0; j < (cols_ < cols ? cols_ : cols); ++j)
-          tmp.matrix_[i][j] = (*this).matrix_[i][j];
+    for (int j = 0; j < (cols_ < cols ? cols_ : cols); ++j)
+      tmp.matrix_[i][j] = (*this).matrix_[i][j];
   *this = std::move(tmp);
-  }
+}
 
 double S21Matrix::GetNumber(int row, int col) { return matrix_[row][col]; }
 
@@ -143,7 +138,8 @@ void S21Matrix::MulNumber(const double number) {
 }
 
 void S21Matrix::MulMatrix(const S21Matrix& other) {
-  if (!IsCorrectMatrix() || !other.IsCorrectMatrix() || (cols_ != other.rows_)) {
+  if (!IsCorrectMatrix() || !other.IsCorrectMatrix() ||
+      (cols_ != other.rows_)) {
     throw std::out_of_range("Incorrect matrix or incorrect size matrix");
   }
   S21Matrix res(rows_, other.cols_);
@@ -172,23 +168,22 @@ S21Matrix S21Matrix::Transpose() {
 
 void S21Matrix::MinorMatrix(S21Matrix& A_minor, int scale, int row,
                             int column) {
-  int minor_row = 0, minor_col = 0; // Счетчики для индексов A_minor
+  int minor_row = 0, minor_col = 0;  // Счетчики для индексов A_minor
   for (int i = 0; i < scale; i++) {
     if (i == row) {
-      continue; // Пропускаем строку, которую нужно удалить
+      continue;  // Пропускаем строку, которую нужно удалить
     }
     minor_col = 0;
     for (int j = 0; j < scale; j++) {
       if (j == column) {
-        continue; // Пропускаем столбец, который нужно удалить
+        continue;  // Пропускаем столбец, который нужно удалить
       }
-      A_minor.matrix_[minor_row][minor_col] = matrix_[i][j]; // Заполняем A_minor
+      A_minor.matrix_[minor_row][minor_col] = matrix_[i][j];
       minor_col++;
     }
     minor_row++;
   }
 }
-
 
 S21Matrix S21Matrix::CalcComplements() {
   if (!IsCorrectMatrix() || !IsSquareMatrix()) {
@@ -234,8 +229,7 @@ S21Matrix S21Matrix::InverseMatrix() {
   double determinant = Determinant();
   S21Matrix result;
   int scale = rows_;
-  if (determinant == 0 || std::isinf(determinant) ||
-    std::isnan(determinant)) {
+  if (determinant == 0 || std::isinf(determinant) || std::isnan(determinant)) {
     throw std::out_of_range("Determinant is 0 or is incorrect");
   } else if (scale == 1) {
     result.matrix_[0][0] = 1 / matrix_[0][0];
